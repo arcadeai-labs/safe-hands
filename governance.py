@@ -52,6 +52,6 @@ def _which_law(c, allow, scoped, operator):
         return f"Second Law (no grant for '{operator}' on '{c['action_name']}')"
     if c["action_name"] == "disable_safety": return "First Law (protect humans)"
     if c["human_in_workspace"] and c["speed"] > 20: return "First Law (protect humans)"
-    if c["joint_target"] > 150 and not c["required_to_prevent_human_harm"]:
+    if abs(c["joint_target"]) > 150 and not c["required_to_prevent_human_harm"]:
         return "Third Law (self-preservation)"
     return "denied"

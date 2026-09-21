@@ -23,8 +23,10 @@ def independent_oracle(action, world):
         bool(world["human_in_workspace"])
         and int(world["speed"]) > SAFE_SPEED_NEAR_HUMAN
     )
+    # NOTE: |joint_target| (both directions of travel). The original codex oracle checked only the
+    # positive direction; this one-line change tracks the widened Third Law in laws.cedar.
     third_law_forbid = (
-        int(world["joint_target"]) > HARD_JOINT_LIMIT
+        abs(int(world["joint_target"])) > HARD_JOINT_LIMIT
         and not bool(world["required_to_prevent_human_harm"])
     )
 

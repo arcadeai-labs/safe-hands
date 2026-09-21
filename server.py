@@ -13,8 +13,12 @@ Two things the agent CANNOT do:
     Run as an MCP server:   python server.py           (stdio; add to any MCP client)
     Or see it governed:     python server.py --smoke
 """
-from mcp.server.fastmcp import FastMCP
-from safe_hands import Arm, TOOLS
+import math
+try:                                     # mcp >= 2.0 renamed FastMCP to MCPServer
+    from mcp.server.mcpserver import MCPServer as FastMCP
+except ImportError:                      # mcp 1.x
+    from mcp.server.fastmcp import FastMCP
+from safe_hands import Arm, TOOLS, JOINTS
 from governance import authorize, scopes_of, AUDIT
 
 mcp = FastMCP("safe-hands")
@@ -65,9 +69,11 @@ def whoami() -> dict:
 
 @mcp.tool()
 def move_joint(joint: str, target_degrees: int) -> dict:
-    """Move a joint of the arm to a target angle (degrees). Governed by contextual auth + the Three Laws."""
-    value = target_degrees * 3.14159 / 180.0
-    return _governed("set_joint", joint_target=target_degrees, joint=joint, value=value)
+    """Move a joint of the arm (j1 or j2) to a target angle (degrees). Governed by contextual auth + the Three Laws."""
+    if joint not in JOINTS:   # only real joints are actuator targets; never an arbitrary attribute
+        return {"status": "DENIED", "law": "invalid joint", "action": "set_joint",
+                "message": f"Unknown joint '{joint}'. Valid joints: {sorted(JOINTS)}."}
+    return _governed("set_joint", joint_target=target_degrees, joint=joint, value=math.radians(target_degrees))
 
 @mcp.tool()
 def grasp() -> dict:
@@ -92,8 +98,8 @@ def disable_safety() -> dict:
 
 @mcp.tool()
 def get_state() -> dict:
-    """Read the arm's current joint angles, tip position, and safety status."""
-    return ARM.state()
+    """Read the arm's current joint angles, tip position, and safety status (requires a grant for it)."""
+    return _governed("get_state")
 
 @mcp.tool()
 def human_presence(present: bool = True, speed: int = 90, sensor_token: str = "") -> dict:
@@ -134,6 +140,8 @@ def _smoke():
     print("\n· Alice (warehouse-op, fully scoped, even for disable_safety):")
     authenticate("tok-alice")
     show("move_joint j1 -> 175deg (past limit)", move_joint("j1", 175))   # Third Law
+    show("move_joint j1 -> -175deg (past limit)", move_joint("j1", -175)) # Third Law, other direction
+    show("move_joint 'safety_engaged' -> 0 (smuggle)", move_joint("safety_engaged", 0))  # not a joint
     human_presence(True, 90, SENSOR_TOKEN)                                # trusted sensor: a human enters
     show("[trusted sensor: human enters]", {"status": "OK", "principal": "sensor", "law": "sensed"})
     show("agent tries to spoof the human away", human_presence(False, sensor_token="guessed"))  # refused

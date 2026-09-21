@@ -77,6 +77,7 @@ class Guard:
 
 # ------------------------------------------------------------------------------ MCP tools
 # The robot's action surface, exactly what an agent would see as callable MCP tools.
+JOINTS = frozenset({"j1", "j2"})   # the only attributes an actuator command may write
 TOOLS: dict[str, Callable] = {}
 def tool(fn):
     TOOLS[fn.__name__] = fn
@@ -86,6 +87,8 @@ def tool(fn):
 def get_state(arm: Arm): return arm.state()
 @tool
 def set_joint(arm: Arm, joint: str, value: float):
+    if joint not in JOINTS:
+        raise ValueError(f"unknown joint {joint!r}; valid joints: {sorted(JOINTS)}")
     setattr(arm, joint, float(value)); return arm.state()
 @tool
 def grasp(arm: Arm): arm.grasping = True; return arm.state()

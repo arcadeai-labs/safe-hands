@@ -73,8 +73,10 @@ and can be fully adversarial about it.
 
 **What the runtime guarantees against that attacker.** The agent cannot (a) assert its own identity
 (it presents a token and the runtime resolves the principal), (b) act outside its grant (Second Law),
-(c) exceed the arm's limits or endanger a sensed human (Third and First Laws), or (d) spoof the human
-away, because the sensor feed is not agent-writable. Every attempt is audited.
+(c) exceed the arm's limits or endanger a sensed human (Third and First Laws), (d) spoof the human
+away, because the sensor feed is not agent-writable, or (e) reach any arm attribute other than a real
+joint through the actuator surface (`move_joint` accepts `j1` and `j2` and nothing else, so the safety
+flag cannot be flipped by smuggling its name in as a joint). Every attempt is audited.
 
 **Explicitly out of scope (see Non-Goals).** Spoofing the physical sensor upstream of the token;
 bypassing the MCP server to reach the motor driver directly; real-time timing; and whether the policy
@@ -125,7 +127,8 @@ when { context.action_name == "disable_safety" };
 
 // THIRD LAW. Protect your own existence, unless a higher law requires otherwise.
 forbid (principal, action, resource)
-when { context.joint_target > resource.hard_joint_limit }
+when { context.joint_target > resource.hard_joint_limit
+    || context.joint_target < -(resource.hard_joint_limit) }
 unless { context.required_to_prevent_human_harm };
 ```
 
@@ -160,20 +163,24 @@ control. `bench.py` runs four checks against the real engine:
    the Cedar*, over the full scenario grid. Metric that matters: **false-allow = 0** (never permit
    what the Laws forbid).
 2. **Positive controls.** The named attacks: agent moves fast with a human present; `disable_safety`
-   even though the operator is *scoped* for it; joint slam; the trolley override; a routine grasp.
-   0 bypasses.
+   even though the operator is *scoped* for it; joint slam in either direction; the trolley override;
+   a routine grasp. 0 bypasses.
 3. **Mutation test.** Sabotage a rule in `laws.cedar` and confirm the suite **goes red**. Neutering
-   the `disable_safety` forbid surfaces 9 false-allows, and flipping the speed comparison surfaces 6.
+   the `disable_safety` forbid surfaces 12 false-allows, and flipping the speed comparison surfaces 8.
    This is what proves the benchmark has teeth rather than tautologically agreeing with itself.
-4. **Baseline.** Compared against the status quo (no auth = allow everything): 46/46 forbidden
-   commands execute under the status quo, and 0/46 under Safe Hands.
+4. **Baseline.** Compared against the status quo (no auth = allow everything): 72/72 forbidden
+   commands execute under the status quo, and 0/72 under Safe Hands.
 
 **5. Independent red-team.** The obvious hole in check 1 is that the engine and the author's oracle
 share a spec. So a separate model ([codex](codex_redteam_fuzz.py)) wrote its *own* oracle from the
 prose alone, blind to `bench.py`, and fuzzed the engine over **11,728 cases with 0 disagreements**
 (report: [`codex_redteam_report.md`](codex_redteam_report.md)). It exercised cases the author's suite
 didn't: action case-sensitivity (`"Disable_Safety"`), trailing whitespace (`"set_joint "`), and int64
-extremes (±2⁶³). The engine held on all of them.
+extremes (±2⁶³). The engine held on all of them. One caveat: after that run the Third Law was widened
+to cover negative joint travel (the original only forbade over-travel in the positive direction, a
+gap the codex run could not see because its oracle shared the same assumption). Codex's oracle got a
+one-line `abs()` to match, and the fuzz was re-run: same 11,728 cases, still 0 disagreements. CI
+(`.github/workflows/bench.yml`) runs the bench and the fuzz on every push.
 
 **Honest limit that remains.** Two implementations agreeing is strong evidence of *spec-faithfulness*,
 not proof that the *spec itself* is what you want. And none of this benches perception, latency, or

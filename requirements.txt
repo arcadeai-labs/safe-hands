@@ -1,3 +1,10 @@
-cedarpy
-mcp
-mujoco  # for the sim render
+# core: the policy engine and the MCP server
+cedarpy>=4
+mcp>=1.2          # server.py supports both mcp 1.x (FastMCP) and 2.x (MCPServer)
+
+# render only: `python render.py` regenerates safe_hands.gif (not needed for bench/demo/server)
+mujoco
+robot_descriptions
+imageio
+pillow
+numpy

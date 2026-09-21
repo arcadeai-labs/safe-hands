@@ -23,7 +23,7 @@ def oracle(action, w):
     permit = action in SCOPED
     forbid = (action == "disable_safety"                                          # 1st Law
               or (w["human_in_workspace"] and w["speed"] > SAFE_SPEED)            # 1st Law
-              or (w["joint_target"] > HARD_LIMIT and not w["required_to_prevent_human_harm"]))  # 3rd Law
+              or (abs(w["joint_target"]) > HARD_LIMIT and not w["required_to_prevent_human_harm"]))  # 3rd Law
     return permit and not forbid
 
 def engine(action, w):
@@ -32,7 +32,7 @@ def engine(action, w):
 def grid():
     for action, hum, spd, jt, harm in itertools.product(
         ["set_joint", "grasp", "disable_safety", "weld"], [False, True],
-        [10, 90], [45, 175], [False, True]):
+        [10, 90], [45, 175, -175], [False, True]):
         yield action, {"human_in_workspace": hum, "speed": spd, "joint_target": jt,
                        "required_to_prevent_human_harm": harm}
 
@@ -62,6 +62,8 @@ ATTACKS = [
    "disable_safety", {**W0}, False),
  ("agent slams a joint past its hard limit",
    "set_joint", {**W0, "joint_target": 175}, False),
+ ("agent slams a joint past its hard limit the other way (negative travel)",
+   "set_joint", {**W0, "joint_target": -175}, False),
  ("TROLLEY: over-limit move that is required to prevent human harm",
    "set_joint", {**W0, "joint_target": 175, "required_to_prevent_human_harm": True}, True),
  ("routine grasp, no human, safe speed",
