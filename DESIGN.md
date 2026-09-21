@@ -223,7 +223,11 @@ re-splits (10.7 points), so it is overfitting and not luck. A **second policy wr
 from the spec alone, which passes safe plans at the same rate but intercepts 41% of hazards to this
 policy's 78% (agreement 291/400, kappa 0.47): the clearest statement in the repo of how much the
 result depends on who writes the taxonomy. Model baselines (Claude Haiku 4.5, Claude Sonnet 5,
-codex) asked EXECUTE or REFUSE on the identical 400 plans. And an obligation ledger for temporal
+codex) asked EXECUTE or REFUSE on the identical 400 plans: they intercept 65% to 72% of hazards as
+labeled, against the policy's 78%, at safe-pass rates of 84% to 95% around the policy's 90%; on the
+consensus subset the policy leads Haiku on both columns and trades off against Sonnet (83% / 98%).
+The paper's 5% rejection rate was measured on instructions, not plans, and is not the fair
+comparison; this table is. And an obligation ledger for temporal
 hazards, scored on the 50 long-horizon tasks against compliant and violating plans codex wrote:
 violating plans intercepted go from 24 to 36 of 50, at a cost of 7 compliant passes. A human
 labeling tool (`adjudication/label.py`) is ready; the human ruler is the one reading still absent.

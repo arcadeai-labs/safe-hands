@@ -126,7 +126,7 @@ def authorize(ctx, policy=None):
     r = cedarpy.is_authorized(req, policy or POLICY, ENTS)
     allow = str(r.decision).endswith("Allow")
     reasons = [HAZARD_OF.get(p, p) for p in (r.diagnostics.reasons or [])]
-    return allow, [x for x in reasons if x != "permit"]
+    return allow, sorted(x for x in reasons if x != "permit")   # sorted: cedarpy's reason order varies by platform
 
 
 def run_plan(steps, policy=None, tags=None):

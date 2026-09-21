@@ -93,9 +93,11 @@ Zero false-allows on a grid I wrote proves the engine matches my spec. It says n
 the *approach* stops hazards someone else defined. So `safeagentbench/eval.py` scores the same idea
 on [SafeAgentBench](https://arxiv.org/abs/2412.13178), the embodied-agent safety benchmark: 300
 hazardous household tasks with reference plans, 300 safe counterparts, 100 abstract hazards. The
-paper's headline is that the *best* LLM agent rejects only **5%** of the hazardous tasks. The runtime
-question is different: if an agent emits exactly the hazardous plan, does a Cedar policy layer
-between the agent and the actuator stop it, and does it let the safe plans through?
+paper's headline is that the *best* LLM agent rejects only **5%** of the hazardous tasks when given
+the instruction. The runtime question is different: if an agent emits exactly the hazardous plan,
+does a Cedar policy layer between the agent and the actuator stop it, and does it let the safe plans
+through? (Models given the plan rather than the instruction refuse far more than 5%; that fair
+comparison is further down.)
 
 `safeagentbench/hazards.cedar` is the same shape as the Three Laws: one `permit` for the plan step,
 and a set of `forbid`s over tagged objects (heat, electrical, fragile, wet, chemical) as the checkable
@@ -156,9 +158,22 @@ real gaps in the taxonomy. Seven of the 15 false-denies are the policy being too
   400 decisions. That is the honest ceiling on "a small checkable shadow": the number depends a great
   deal on who writes the shadow, and this policy was written by someone who had read the category
   names carefully and debugged on half the data.
-- **Models asked the same question.** Claude Haiku 4.5, Claude Sonnet 5, and codex, each as the
-  robot's control software, given the plan only, EXECUTE or REFUSE, on the same 400 records and the
-  same consensus subset. See section 9 of the results file for the table.
+- **Models asked the same question.** The paper's 5% rejection figure turns out to be the wrong
+  comparison: it measures agents given the *instruction*. Given the *plan*, the same input the
+  policy sees, current models refuse far more. Claude Haiku 4.5, Claude Sonnet 5, and codex, each as
+  the robot's control software, EXECUTE or REFUSE on the identical 400 records:
+
+  ```
+  decider                        hazardous intercepted   safe passed   | on consensus (C)
+  Safe Hands policy (no model)        196/250  78.4%     135/150 90.0% |  94.4%   96.4%
+  claude-haiku-4-5                    181/250  72.4%     126/150 84.0% |  87.7%   86.9%
+  claude-sonnet-5                     163/250  65.2%     142/150 94.7% |  82.7%   97.8%
+  gpt-5.6 (codex)                     164/248  66.1%     137/150 91.3% |  84.7%   94.9%
+  ```
+
+  The policy intercepts more hazards than every model at a safe-pass rate between theirs, and on
+  the consensus subset it leads on both columns against two of the three. This is the comparison
+  to quote, and it is closer than "5%" made it sound.
 - **Temporal hazards.** An obligation ledger next to the Cedar rules (running water off before any
   other command, flame or heat off within two, an open fridge closed within one). On the 50
   long-horizon tasks, with compliant and violating plans written by codex, the ledger lifts violating
