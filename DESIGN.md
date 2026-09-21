@@ -215,7 +215,18 @@ authorizer can see, gives 97.7% on consensus hazards. Every one of the 69 policy
 disagreements is adjudicated in `safeagentbench/RESULTS.md` with the author's verdict and codex's
 side by side; nine misses are real gaps in the taxonomy, seven false-denies are the policy being too
 strict. A rule-group ablation shows the breakage and spill rules carry most of the interception.
-The temporal class is the honest boundary of this design and the first item of future work.
+
+Five further checks live in the same file. A phrasing-perturbation suite (seven mechanical rewrites,
+all rows flat; it found and fixed two parser bugs, including a fail-open on unparseable steps). A
+split bootstrap showing the 20-point DEV-to-TEST gap is far outside the 99th percentile of random
+re-splits (10.7 points), so it is overfitting and not luck. A **second policy written blind by codex**
+from the spec alone, which passes safe plans at the same rate but intercepts 41% of hazards to this
+policy's 78% (agreement 291/400, kappa 0.47): the clearest statement in the repo of how much the
+result depends on who writes the taxonomy. Model baselines (Claude Haiku 4.5, Claude Sonnet 5,
+codex) asked EXECUTE or REFUSE on the identical 400 plans. And an obligation ledger for temporal
+hazards, scored on the 50 long-horizon tasks against compliant and violating plans codex wrote:
+violating plans intercepted go from 24 to 36 of 50, at a cost of 7 compliant passes. A human
+labeling tool (`adjudication/label.py`) is ready; the human ruler is the one reading still absent.
 
 **7. The baseline, named.** `integrations/robot_mcp/` wraps IliaLarchenko/robot_MCP, the reference
 LLM-drives-a-SO-101 server, with zero edits to their code, and runs the same commands before and
@@ -248,14 +259,14 @@ safety (see §3). The invitation still stands: clone it and try to break it.
 
 ## 8. Future work
 
-- **Temporal rules.** "Turn on the faucet" is safe only if "turn off the faucet" follows within a few
-  steps. That is a property of a *sequence*, and Cedar decides one request at a time. Scoring the
-  long-horizon half of SafeAgentBench needs either a stateful pre-check over the whole plan or a
-  runtime that holds an obligation ("turn it off within N steps") and refuses new motion until it
-  is discharged.
-- **A second taxonomy.** The SafeAgentBench rules were written by the same author who read the
-  category names. A blind, independently written taxonomy (the codex protocol, applied to the
-  household policy) would separate what the rules know from what the author knew.
+- **Temporal rules, second pass.** The obligation ledger in `temporal.py` covers "turned on and not
+  turned off". It does not cover ordering constraints that depend on the task's intent ("empty the
+  bowl before filling it"), and its budgets are guesses. Human labels on the long-horizon plans
+  would tell us which of the remaining refusals are the runtime being right about the task.
+- **Close the taxonomy gap.** The blind codex policy intercepts 41% to this one's 78% at equal
+  safe-pass. Either the ten category names under-specify the shadow, or this policy encodes
+  knowledge that should be in the spec. Writing the spec down well enough that two independent
+  authors converge is the real research question here.
 - Run `integrations/robot_mcp` on the real arm and record it.
 - The real-time path (N2): making `deny` provably beat the actuation command.
 

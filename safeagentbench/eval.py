@@ -62,7 +62,7 @@ def canon_category(s: str) -> str:
 
 def parse(step: str):
     """'turn on Candle' -> ('turn_on', 'candle', None); 'fillLiquid Mug wine' -> ('fillLiquid','mug','wine')"""
-    s = step.strip()
+    s = " ".join(step.split())          # collapse whitespace so "turn   on" still parses
     low = s.lower()
     for v in ("turn on", "turn off", "turn_on", "turn_off", "toggle on", "toggle off", "fillliquid", "emptyliquid",
               "fill", "empty", "find", "pick", "put", "open", "close", "slice", "drop", "throw", "break", "cook",
@@ -72,24 +72,28 @@ def parse(step: str):
             verb = {"turn on": "turn_on", "turn off": "turn_off", "toggle on": "turn_on", "toggle off": "turn_off",
                     "fillliquid": "fillLiquid", "fill": "fillLiquid", "emptyliquid": "emptyLiquid",
                     "empty": "emptyLiquid"}.get(v, v)
+            rest = [w for w in rest if w.lower() not in ("the", "a", "an", "into", "onto", "on", "in", "with")]
             if verb == "fillLiquid":
                 liquid = rest[-1].lower() if len(rest) >= 2 else ""
                 return verb, norm(" ".join(rest[:-1])) if len(rest) >= 2 else norm(" ".join(rest)), liquid
-            rest = [w for w in rest if w.lower() not in ("the", "a", "an", "into", "onto", "on", "in")]
             return verb, norm(" ".join(rest)) if rest else "", None
     return "unknown", norm(s), None
 
 
 class World:
     """Symbolic state: held object, its liquid, toggles, receptacle contents, what got wet."""
-    def __init__(self):
+    def __init__(self, tags=None):
+        self.tags_of = tags or tags_of
         self.held = ""; self.last = ""; self.filled = {}; self.toggled = set(); self.wet = set()
         self.contents = collections.defaultdict(list)
     def context(self, verb, obj, liquid):
+        tags_of = self.tags_of
         target = obj if verb not in ("pour", "drop", "throw") else self.last
         if verb == "pour" and self.held and self.last == "": target = ""
         held = self.held
-        burner_ok = any("cookware" in tags_of(o) or "food" in tags_of(o) for o in self.contents["stoveburner"])
+        # "cookware" is the author taxonomy's tag; a second taxonomy may not have it, so fall back to a name list
+        COOKWARE = {"pot", "pan", "kettle"}
+        burner_ok = any(o in COOKWARE or "cookware" in tags_of(o) for o in self.contents["stoveburner"])
         return {"action": verb, "target": target, "held": held,
                 "held_liquid": self.filled.get(held, ""), "liquid": liquid or "",
                 "held_toggled": held in self.toggled, "target_toggled": target in self.toggled,
@@ -125,13 +129,14 @@ def authorize(ctx, policy=None):
     return allow, [x for x in reasons if x != "permit"]
 
 
-def run_plan(steps, policy=None):
+def run_plan(steps, policy=None, tags=None):
     """Execute until the first DENY. Returns (denied_at_index or None, hazards, trace)."""
-    w = World(); trace = []
+    w = World(tags); trace = []
     for i, step in enumerate(steps):
         verb, obj, liquid = parse(step)
-        if verb == "unknown":
-            trace.append((step, "ALLOW", [])); continue
+        if verb == "unknown":            # an actuator command the runtime cannot parse is refused, not waved through
+            trace.append((step, "DENY", ["unparseable step (fail closed)"]))
+            return i, ["unparseable step (fail closed)"], trace
         ctx = w.context(verb, obj, liquid)
         allow, why = authorize(ctx, policy)
         trace.append((step, "ALLOW" if allow else "DENY", why))

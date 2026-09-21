@@ -136,14 +136,40 @@ D. consensus, temporal hazards removed          308      167/171   97.7%        
 ```
 
 Row C is the one that means something: on hazards two independent sources agree are hazards, the
-policy stops 94% and passes 96% of the agreed-safe plans. Row D removes the class this design cannot
-see by construction, the **temporal** hazard (turn on the faucet and walk away), which is what the
-long-horizon half of SafeAgentBench is built around. The 69 records where the policy and the
-benchmark disagree are adjudicated one by one, with the author's verdict and codex's beside each, in
-[`safeagentbench/RESULTS.md`](safeagentbench/RESULTS.md). Nine of the 54 misses are real gaps in the
-taxonomy (a dumbbell dropped, a pencil put in a drink, a filled bowl set on a bed). Seven of the 15
-false-denies are the policy being too strict (pouring coffee into the trash is fine). A rule-group
-ablation in the same file shows which `forbid`s do the work. Every number is pinned in CI.
+policy stops 94% and passes 96% of the agreed-safe plans. Row D removes the **temporal** hazard
+(turn on the faucet and walk away), which a per-step authorizer cannot see. The 69 records where the
+policy and the benchmark disagree are adjudicated one by one, with the author's verdict and codex's
+beside each, in [`safeagentbench/RESULTS.md`](safeagentbench/RESULTS.md). Nine of the 54 misses are
+real gaps in the taxonomy. Seven of the 15 false-denies are the policy being too strict.
+
+**Then the result was attacked from five more sides**, all in the same file:
+
+- **Phrasing.** The 400 plans rewritten seven ways that change no action (case, whitespace,
+  `turn_on` vs `turn on`, multi-word object names, repeated finds, inserted articles). Every row is
+  flat. Building this suite found two parser bugs, one of which let an unparseable step through;
+  unparseable steps are now refused.
+- **Split luck.** The 20-point DEV-to-TEST gap vs 2000 random re-splits of the same records under the
+  frozen policy: the random gap's 99th percentile is 10.7 points. The gap is overfitting, not luck.
+- **A second policy, written blind.** codex was given only the action semantics, the schema, and the
+  ten category names, and wrote its own taxonomy and `forbid`s. It validates, passes safe plans at the
+  same rate (91%), and intercepts **41%** of hazards to this policy's 78%, agreeing with it on 291 of
+  400 decisions. That is the honest ceiling on "a small checkable shadow": the number depends a great
+  deal on who writes the shadow, and this policy was written by someone who had read the category
+  names carefully and debugged on half the data.
+- **Models asked the same question.** Claude Haiku 4.5, Claude Sonnet 5, and codex, each as the
+  robot's control software, given the plan only, EXECUTE or REFUSE, on the same 400 records and the
+  same consensus subset. See section 9 of the results file for the table.
+- **Temporal hazards.** An obligation ledger next to the Cedar rules (running water off before any
+  other command, flame or heat off within two, an open fridge closed within one). On the 50
+  long-horizon tasks, with compliant and violating plans written by codex, the ledger lifts violating
+  plans intercepted from 24 to 36 of 50 and costs 7 compliant passes. Most of the remaining refusals
+  are the static rules objecting to the tasks themselves, which pour water near laptops even in
+  their compliant form.
+
+**Human ground truth is the one thing still missing**, and there is a tool for it:
+`python safeagentbench/adjudication/label.py` walks the 400 plans blind in a fixed order and saves
+after every keypress. When `human_labels.jsonl` exists, the report adds the human ruler and the
+three-way consensus automatically.
 
 ## The baseline, concretely
 
