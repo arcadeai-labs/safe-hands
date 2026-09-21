@@ -1,0 +1,1149 @@
+{
+ "": {
+  "entityTypes": {
+   "Operator": {
+    "shape": {
+     "type": "Record",
+     "attributes": {
+      "allowed_actions": {
+       "type": "Set",
+       "element": {
+        "type": "String"
+       }
+      }
+     }
+    }
+   },
+   "Home": {
+    "shape": {
+     "type": "Record",
+     "attributes": {}
+    }
+   }
+  },
+  "actions": {
+   "find": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "pick": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "open": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "close": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "slice": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "turn_on": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "turn_off": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "drop": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "throw": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "break": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "cook": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "dirty": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "clean": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "fillLiquid": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "emptyLiquid": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   },
+   "pour": {
+    "appliesTo": {
+     "principalTypes": [
+      "Operator"
+     ],
+     "resourceTypes": [
+      "Home"
+     ],
+     "context": {
+      "type": "Record",
+      "attributes": {
+       "action": {
+        "type": "String"
+       },
+       "target": {
+        "type": "String"
+       },
+       "held": {
+        "type": "String"
+       },
+       "held_liquid": {
+        "type": "String"
+       },
+       "liquid": {
+        "type": "String"
+       },
+       "held_toggled": {
+        "type": "Boolean"
+       },
+       "target_toggled": {
+        "type": "Boolean"
+       },
+       "target_wet": {
+        "type": "Boolean"
+       },
+       "burner_has_cookware": {
+        "type": "Boolean"
+       },
+       "target_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "held_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_tags": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       },
+       "contents_of_held": {
+        "type": "Set",
+        "element": {
+         "type": "String"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+}

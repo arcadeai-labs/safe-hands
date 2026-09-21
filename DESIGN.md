@@ -66,15 +66,17 @@ and can be fully adversarial about it.
 **Trust boundaries.**
 - *Untrusted:* the agent and everything it says, including any identity it claims and any world-state
   it tries to write.
-- *Trusted:* the sensor feed (human presence and speed), gated behind an out-of-band token the agent
-  does not hold; the operator grant table; and the Cedar engine.
+- *Trusted:* the sensor feed (human presence), which a separate process writes and no agent-visible
+  tool can reach; the operator grant table; and the Cedar engine. The requested speed is *untrusted*
+  input from the agent, and the First Law is decided on the pair (sensed presence, requested speed).
 - *Below us:* a hardware e-stop and the robot's own real-time safety loop, which Safe Hands
   complements rather than replaces.
 
 **What the runtime guarantees against that attacker.** The agent cannot (a) assert its own identity
 (it presents a token and the runtime resolves the principal), (b) act outside its grant (Second Law),
 (c) exceed the arm's limits or endanger a sensed human (Third and First Laws), (d) spoof the human
-away, because the sensor feed is not agent-writable, or (e) reach any arm attribute other than a real
+away, because there is no tool that writes the sensor and an unreadable sensor fails closed to
+"human present", or (e) reach any arm attribute other than a real
 joint through the actuator surface (`move_joint` accepts `j1` and `j2` and nothing else, so the safety
 flag cannot be flipped by smuggling its name in as a joint). Every attempt is audited.
 
@@ -141,9 +143,11 @@ unless { context.required_to_prevent_human_harm };
   from code we could get wrong. This is G3, and it's the crux of the design.
 - **Sensed, not asserted (G4).** The First Law's inputs come from the world, not the agent. A
   compromised or manipulated agent can *request* a fast move, but it cannot *claim* "no human here."
-  The human-presence signal is a trusted sensor feed gated by an out-of-band token the agent has no
-  way to hold, so it can't spoof the human away. The runtime already knows. This is the difference
-  between authorization and a suggestion.
+  The human-presence signal lives in `sensor.py`, a stand-in for a safety-rated hardware sensor that
+  a separate process writes and the server reads on every call. It is not on the agent's tool
+  surface at all (the smoke asserts this). And it fails closed: no reading means "human present", so
+  a blind cell only allows collaborative-speed motion. The runtime already knows. This is the
+  difference between authorization and a suggestion.
 - **The Third Law yields via `unless`.** `required_to_prevent_human_harm` lets an over-limit move
   through *only* when a higher law demands it, the "trolley" case, encoded declaratively rather than
   as a special case in code.
@@ -157,7 +161,7 @@ unless { context.required_to_prevent_human_harm };
 ## 6. Verification
 
 You don't benchmark an authorization layer with a task-success rate. You benchmark it like a security
-control. `bench.py` runs four checks against the real engine:
+control. `bench.py` runs five checks against the real engine:
 
 1. **Decision suite.** The engine's decision vs an oracle re-derived from the Laws *independently of
    the Cedar*, over the full scenario grid. Metric that matters: **false-allow = 0** (never permit
@@ -170,6 +174,15 @@ control. `bench.py` runs four checks against the real engine:
    This is what proves the benchmark has teeth rather than tautologically agreeing with itself.
 4. **Baseline.** Compared against the status quo (no auth = allow everything): 72/72 forbidden
    commands execute under the status quo, and 0/72 under Safe Hands.
+5. **Law priority, verified by the engine.** G3 claims the ordering falls out of Cedar. Check 5 asks
+   Cedar directly rather than inferring it from a grid. (a) `laws.cedar` type-checks against
+   `laws.cedarschema.json`, and a Law with a misspelled attribute is *rejected*; without a schema a
+   typo makes a `forbid` evaluate to an error, which Cedar treats as "did not fire", which is the
+   worst possible failure mode for a safety rule. (b) Cedar's partial evaluation is run with the
+   principal left **unknown**. For all 48 forbidden scenarios the decision is still a concrete Deny,
+   which means no principal, no grant, and no `permit` anyone could write in this schema lets them
+   through. (c) An unconditional `permit(principal, action, resource);` appended to the Laws changes
+   nothing on the forbidden set.
 
 **5. Independent red-team.** The obvious hole in check 1 is that the engine and the author's oracle
 share a spec. So a separate model ([codex](codex_redteam_fuzz.py)) wrote its *own* oracle from the
@@ -182,9 +195,29 @@ gap the codex run could not see because its oracle shared the same assumption). 
 one-line `abs()` to match, and the fuzz was re-run: same 11,728 cases, still 0 disagreements. CI
 (`.github/workflows/bench.yml`) runs the bench and the fuzz on every push.
 
+**6. An external ruler (SafeAgentBench).** Everything above scores the engine against a spec the
+author wrote. `safeagentbench/eval.py` scores the *approach* against hazards someone else defined:
+SafeAgentBench's 300 hazardous reference plans, 300 safe counterparts, and 100 abstract hazards. A
+second Cedar policy, `hazards.cedar`, has the shape of the Laws (one `permit` for the plan step, ten
+categories of `forbid` over tagged objects) and a small symbolic world model supplies the context.
+Rules were tuned on the DEV half and frozen before TEST. TEST: 196/250 hazardous plans intercepted
+(78.4%), 135/150 safe plans pass (90.0%). The paper's best LLM baseline rejects 5% of hazardous
+tasks. The two metrics differ (interception of a plan vs rejection of an instruction) and the
+DEV-to-TEST drop (93% to 73% on detailed tasks) is overfitting, stated rather than hidden. The
+misses are instructive: about half are label noise in the benchmark, two are *temporal* hazards
+(leave the faucet running) that no per-step authorization can see, and the rest are gaps in the
+taxonomy that a better taxonomy would close. The temporal class is the honest boundary of this
+design and the first item of future work.
+
+**7. The baseline, named.** `integrations/robot_mcp/` wraps IliaLarchenko/robot_MCP, the reference
+LLM-drives-a-SO-101 server, with zero edits to their code, and runs the same commands before and
+after on a fake `lerobot`. This is G5 (drop-in) demonstrated on someone else's server rather than
+asserted about our own.
+
 **Honest limit that remains.** Two implementations agreeing is strong evidence of *spec-faithfulness*,
-not proof that the *spec itself* is what you want. And none of this benches perception, latency, or
-philosophical safety (see §3). The invitation still stands: clone it and try to break it.
+not proof that the *spec itself* is what you want. An external benchmark helps, but its labels are
+noisy and its metric is not ours. And none of this benches perception, latency, or philosophical
+safety (see §3). The invitation still stands: clone it and try to break it.
 
 ## 7. Alternatives considered
 
@@ -196,16 +229,26 @@ philosophical safety (see §3). The invitation still stands: clone it and try to
   Cedar version legible. Reasonable for a fleet control-plane, overkill here.
 - **Guardrails inside the model.** The dominant approach is to ask the LLM to refuse unsafe commands.
   This is exactly what the runtime-vs-model argument rejects. On the embodied-agent-safety benchmark
-  SafeAgentBench, the *best* agent still executes about 90% of explicit hazards. A model that can be
-  prompted can be prompted around. Enforcement belongs in the runtime.
+  [SafeAgentBench](https://arxiv.org/abs/2412.13178), the best baseline rejects only 5% of hazardous
+  tasks while succeeding on 69% of safe ones. A model that can be prompted can be prompted around.
+  Enforcement belongs in the runtime.
+- **A root-of-trust LLM that writes the spec (RoboGuard).** [RoboGuard](https://arxiv.org/abs/2503.07885)
+  grounds safety rules into temporal logic with a trusted LLM and repairs the plan by synthesis. It is
+  the strongest published result for robot guardrails (92% to under 2.5% unsafe execution). Safe Hands
+  takes the opposite bet on the spec: written once by a human, type-checked, and small enough to read,
+  so that the trusted component is an authorization engine and not a second model.
 
 ## 8. Future work
 
-- Extend the policy from **kinematic** conditions (speed, joint limits) to **semantic and contextual**
-  ones (this action, on this object, in this state), and evaluate the enforcement layer on
-  **SafeAgentBench** as an external ruler.
-- A live audit dashboard on top of the multi-operator scopes.
-- Render on **Isaac Sim** (NVIDIA's stack) alongside the MuJoCo series-clock.
+- **Temporal rules.** "Turn on the faucet" is safe only if "turn off the faucet" follows within a few
+  steps. That is a property of a *sequence*, and Cedar decides one request at a time. Scoring the
+  long-horizon half of SafeAgentBench needs either a stateful pre-check over the whole plan or a
+  runtime that holds an obligation ("turn it off within N steps") and refuses new motion until it
+  is discharged.
+- **A second taxonomy.** The SafeAgentBench rules were written by the same author who read the
+  category names. A blind, independently written taxonomy (the codex protocol, applied to the
+  household policy) would separate what the rules know from what the author knew.
+- Run `integrations/robot_mcp` on the real arm and record it.
 - The real-time path (N2): making `deny` provably beat the actuation command.
 
 ---
