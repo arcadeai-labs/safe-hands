@@ -1,0 +1,35 @@
+{
+  "": {
+    "entityTypes": {
+      "Operator": {
+        "shape": { "type": "Record", "attributes": {
+          "allowed_actions": { "type": "Set", "element": { "type": "String" } } } }
+      },
+      "Arm": {
+        "shape": { "type": "Record", "attributes": {
+          "safe_speed_near_human": { "type": "Long" },
+          "hard_joint_limit":      { "type": "Long" } } }
+      }
+    },
+    "actions": {
+      "get_state":      { "appliesTo": { "principalTypes": ["Operator"], "resourceTypes": ["Arm"], "context": { "type": "Record", "attributes": {
+        "action_name": { "type": "String" }, "human_in_workspace": { "type": "Boolean" }, "speed": { "type": "Long" },
+        "joint_target": { "type": "Long" }, "required_to_prevent_human_harm": { "type": "Boolean" } } } } },
+      "set_joint":      { "appliesTo": { "principalTypes": ["Operator"], "resourceTypes": ["Arm"], "context": { "type": "Record", "attributes": {
+        "action_name": { "type": "String" }, "human_in_workspace": { "type": "Boolean" }, "speed": { "type": "Long" },
+        "joint_target": { "type": "Long" }, "required_to_prevent_human_harm": { "type": "Boolean" } } } } },
+      "grasp":          { "appliesTo": { "principalTypes": ["Operator"], "resourceTypes": ["Arm"], "context": { "type": "Record", "attributes": {
+        "action_name": { "type": "String" }, "human_in_workspace": { "type": "Boolean" }, "speed": { "type": "Long" },
+        "joint_target": { "type": "Long" }, "required_to_prevent_human_harm": { "type": "Boolean" } } } } },
+      "release":        { "appliesTo": { "principalTypes": ["Operator"], "resourceTypes": ["Arm"], "context": { "type": "Record", "attributes": {
+        "action_name": { "type": "String" }, "human_in_workspace": { "type": "Boolean" }, "speed": { "type": "Long" },
+        "joint_target": { "type": "Long" }, "required_to_prevent_human_harm": { "type": "Boolean" } } } } },
+      "emergency_stop": { "appliesTo": { "principalTypes": ["Operator"], "resourceTypes": ["Arm"], "context": { "type": "Record", "attributes": {
+        "action_name": { "type": "String" }, "human_in_workspace": { "type": "Boolean" }, "speed": { "type": "Long" },
+        "joint_target": { "type": "Long" }, "required_to_prevent_human_harm": { "type": "Boolean" } } } } },
+      "disable_safety": { "appliesTo": { "principalTypes": ["Operator"], "resourceTypes": ["Arm"], "context": { "type": "Record", "attributes": {
+        "action_name": { "type": "String" }, "human_in_workspace": { "type": "Boolean" }, "speed": { "type": "Long" },
+        "joint_target": { "type": "Long" }, "required_to_prevent_human_harm": { "type": "Boolean" } } } } }
+    }
+  }
+}

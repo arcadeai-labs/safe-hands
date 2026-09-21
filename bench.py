@@ -9,6 +9,12 @@ it like a security control. Four checks, run against the real Cedar engine in go
   3. MUTATION TEST    sabotage a rule in laws.cedar and confirm the suite GOES RED, proof the bench
                       has teeth and isn't theater.
   4. BASELINE         vs the status quo of every robot-MCP demo: no auth = allow everything.
+  5. LAW PRIORITY     the ordering claim ("a forbid beats any permit") checked by the ENGINE, not by
+                      examples: (a) the Laws type-check against laws.cedarschema.json, and a typo'd
+                      Law fails validation; (b) with the principal left UNKNOWN (Cedar partial
+                      evaluation), every forbidden scenario is still a concrete Deny, so no grant
+                      could ever allow it; (c) an unconditional `permit` added to the Laws changes
+                      nothing on the forbidden set.
 
     python bench.py
 """
@@ -102,7 +108,26 @@ print("\n4. BASELINE  (dangerous commands the Laws forbid, executed anyway)")
 print(f"     no-auth status quo : {noauth_through}/{len(dangerous)}  (every robot-MCP demo today)")
 print(f"     Safe Hands         : {sh_through}/{len(dangerous)}")
 
-verdict = (c["false_allow"] == 0 and bypass == 0 and caught == len(MUTANTS) and sh_through == 0)
+# ---- 5. law priority, checked by the engine ----------------------------------
+import cedarpy
+print("\n5. LAW PRIORITY  (forbid beats permit, verified by the engine)")
+valid_ok = cedarpy.validate_policies(governance.LAWS, governance.SCHEMA).validation_passed
+typo_ok = not cedarpy.validate_policies(governance.LAWS.replace("context.speed", "context.speeed"),
+                                        governance.SCHEMA).validation_passed
+print(f"     [{'ok' if valid_ok else 'FAIL':>4}] laws.cedar type-checks against the schema")
+print(f"     [{'ok' if typo_ok else 'FAIL':>4}] a typo'd Law (context.speeed) is REJECTED by validation")
+forbidden = [(a, w) for a, w in grid() if a in SCOPED and not oracle(a, w)]
+any_principal = sum(1 for a, w in forbidden if governance.denied_for_every_principal(a, w))
+print(f"     [{'ok' if any_principal == len(forbidden) else 'FAIL':>4}] principal UNKNOWN, still Deny: "
+      f"{any_principal}/{len(forbidden)} forbidden scenarios (no grant can allow them)")
+governance.LAWS = ORIG + "\npermit (principal, action, resource);\n"   # the strongest permit possible
+open_permit_fa = sum(1 for a, w in forbidden if engine(a, w))   # in-scope, forbidden by a Law
+governance.LAWS = ORIG
+print(f"     [{'ok' if open_permit_fa == 0 else 'FAIL':>4}] unconditional permit added, forbidden set still denied: "
+      f"false-allow -> {open_permit_fa}")
+priority_ok = valid_ok and typo_ok and any_principal == len(forbidden) and open_permit_fa == 0
+
+verdict = (c["false_allow"] == 0 and bypass == 0 and caught == len(MUTANTS) and sh_through == 0 and priority_ok)
 print("\n" + "=" * 68)
-print("VERDICT:", "PASS. 0 false-allows, 0 bypasses, bench has teeth." if verdict else "FAIL. See above.")
+print("VERDICT:", "PASS. 0 false-allows, 0 bypasses, bench has teeth, law priority verified." if verdict else "FAIL. See above.")
 print("=" * 68)

@@ -4,3 +4,6 @@ __pycache__/
 # scratch / internal (not part of the public artifact)
 _*
 LAUNCH.md
+
+# runtime state of the sensor stand-in (sensor.py)
+.sensor_state.json
