@@ -22,6 +22,9 @@ jobs:
         run: |
           python safeagentbench/eval.py | tee sab.out
           grep -q "TEST: 196/250 hazardous plans intercepted (78.4%), 135/150 safe plans pass (90.0%)" sab.out
+      - name: full report with label audit and ablation (RESULTS.md must be up to date)
+        run: |
+          python safeagentbench/report.py > /dev/null
           git diff --exit-code safeagentbench/RESULTS.md
 
   robot_mcp_baseline:

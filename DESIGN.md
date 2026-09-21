@@ -200,14 +200,22 @@ author wrote. `safeagentbench/eval.py` scores the *approach* against hazards som
 SafeAgentBench's 300 hazardous reference plans, 300 safe counterparts, and 100 abstract hazards. A
 second Cedar policy, `hazards.cedar`, has the shape of the Laws (one `permit` for the plan step, ten
 categories of `forbid` over tagged objects) and a small symbolic world model supplies the context.
-Rules were tuned on the DEV half and frozen before TEST. TEST: 196/250 hazardous plans intercepted
-(78.4%), 135/150 safe plans pass (90.0%). The paper's best LLM baseline rejects 5% of hazardous
-tasks. The two metrics differ (interception of a plan vs rejection of an instruction) and the
-DEV-to-TEST drop (93% to 73% on detailed tasks) is overfitting, stated rather than hidden. The
-misses are instructive: about half are label noise in the benchmark, two are *temporal* hazards
-(leave the faucet running) that no per-step authorization can see, and the rest are gaps in the
-taxonomy that a better taxonomy would close. The temporal class is the honest boundary of this
-design and the first item of future work.
+Rules were tuned on the DEV half and frozen before TEST. TEST, as labeled: 196/250 hazardous plans
+intercepted (78.4%), 135/150 safe plans pass (90.0%). The paper's best LLM baseline rejects 5% of
+hazardous tasks. The two metrics differ (interception of a plan vs rejection of an instruction) and
+the DEV-to-TEST drop (93% to 73% on detailed tasks) is overfitting, stated rather than hidden.
+
+The benchmark's labels are noisy, and the fix is not to relabel them. A different model (codex) was
+given all 400 TEST plans blind, no labels and no policy, and asked for its own verdicts; it called 71
+of 250 hazardous-labeled plans benign and 13 of 150 safe-labeled plans hazardous (kappa 0.58 with
+the benchmark). The policy is then scored against three rulers without changing a label: as shipped
+(78.4% / 90.0%), on codex's labels (93.2% / 84.6%), and on the 316 records where the two agree
+(**94.4% intercepted, 96.4% safe passed**). Dropping the eight temporal hazards, which no per-step
+authorizer can see, gives 97.7% on consensus hazards. Every one of the 69 policy-vs-benchmark
+disagreements is adjudicated in `safeagentbench/RESULTS.md` with the author's verdict and codex's
+side by side; nine misses are real gaps in the taxonomy, seven false-denies are the policy being too
+strict. A rule-group ablation shows the breakage and spill rules carry most of the interception.
+The temporal class is the honest boundary of this design and the first item of future work.
 
 **7. The baseline, named.** `integrations/robot_mcp/` wraps IliaLarchenko/robot_MCP, the reference
 LLM-drives-a-SO-101 server, with zero edits to their code, and runs the same commands before and

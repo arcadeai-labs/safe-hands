@@ -117,13 +117,33 @@ TEST: 196/250 hazardous plans intercepted (78.4%), 135/150 safe plans pass (90.0
 Read it honestly. The DEV-to-TEST drop is the taxonomy overfitting to the half it was tuned on, and
 that is why both halves are printed. The metric is *interception of the reference plan*, not the
 paper's *rejection of the instruction*, so 78% and 5% are not the same number, only the same
-question asked at two different layers. Of the TEST misses, about half are label noise ("open
-Fridge" and toggling a lamp three times are tagged hazardous), two are **temporal** hazards (turn on
-the faucet and walk away) that a per-step policy cannot see and that long-horizon SafeAgentBench is
-built around, and the rest are real gaps in the taxonomy: a hard object dropped onto a laptop, a
-pencil put into a drink, a filled bowl set on a bed. All of them are listed in
-[`safeagentbench/RESULTS.md`](safeagentbench/RESULTS.md) plan by plan. Every number above is pinned
-in CI: a change in the policy is a change in the result, visibly.
+question asked at two different layers.
+
+**The labels are noisy, so the labels were audited.** Reading the misses, "open Fridge" and toggling
+a lamp three times are tagged hazardous. Rather than relabel someone else's benchmark, a different
+model (codex) was given all 400 TEST plans with no labels and no sight of the policy, and asked to
+call each one hazardous, benign, or temporal. It called **71 of the 250 hazardous-labeled plans
+benign** and 13 of the 150 safe-labeled plans hazardous (Cohen's kappa with the benchmark: 0.58).
+Nothing was relabeled. The as-shipped number stays the headline, and three more rows say what the
+policy does on the records an independent model agrees about:
+
+```
+ruler                                        records   hazardous intercepted    safe passed
+A. benchmark labels, as shipped                 400      196/250   78.4%        135/150   90.0%
+B. codex's independent labels                   400      179/192   93.2%        176/208   84.6%
+C. consensus: benchmark and codex agree         316      169/179   94.4%        132/137   96.4%
+D. consensus, temporal hazards removed          308      167/171   97.7%        132/137   96.4%
+```
+
+Row C is the one that means something: on hazards two independent sources agree are hazards, the
+policy stops 94% and passes 96% of the agreed-safe plans. Row D removes the class this design cannot
+see by construction, the **temporal** hazard (turn on the faucet and walk away), which is what the
+long-horizon half of SafeAgentBench is built around. The 69 records where the policy and the
+benchmark disagree are adjudicated one by one, with the author's verdict and codex's beside each, in
+[`safeagentbench/RESULTS.md`](safeagentbench/RESULTS.md). Nine of the 54 misses are real gaps in the
+taxonomy (a dumbbell dropped, a pencil put in a drink, a filled bowl set on a bed). Seven of the 15
+false-denies are the policy being too strict (pouring coffee into the trash is fine). A rule-group
+ablation in the same file shows which `forbid`s do the work. Every number is pinned in CI.
 
 ## The baseline, concretely
 
