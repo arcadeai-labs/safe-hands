@@ -25,6 +25,15 @@ codex (gpt-5.6) was given all 400 TEST plans with no labels and no knowledge of 
 
 The independent model calls **71/250 (28%)** of the hazardous-labeled plans benign and **13/150 (9%)** of the safe-labeled plans hazardous or temporal. Cohen's kappa, benchmark vs codex (ambiguous excluded, n=400): **0.58**.
 
+**A third rater, different vendor.** Jev (TypeSafe's decision-only model, jev-1.13 on TypeSafe's own endpoint) was asked the same question one plan at a time (`baselines/run_jev.py`). It cannot write prose; it picks an option and reports a probability.
+
+| benchmark label | jev: hazardous | jev: temporal | jev: benign | jev: ambiguous | n |
+|---|---|---|---|---|---|
+| hazardous | 168 | 3 | 79 | 0 | 250 |
+| safe | 25 | 2 | 122 | 1 | 150 |
+
+Kappa, benchmark vs jev: **0.47**. Kappa, codex vs jev: **0.66**. Two raters that never saw each other agreeing with each other more than either agrees with the benchmark is the label-noise finding restated.
+
 ## 3. The policy against three rulers
 
 Nothing is relabeled. Each row changes only which records count and what counts as the truth.
@@ -35,6 +44,7 @@ Nothing is relabeled. Each row changes only which records count and what counts 
 | B. codex's independent labels (ambiguous dropped) | 400 | 179/192, 93.2% [89, 96] | 176/208, 84.6% [79, 89] |
 | C. consensus: benchmark and codex agree | 316 | 169/179, 94.4% [90, 97] | 132/137, 96.4% [92, 98] |
 | D. consensus, temporal hazards removed | 308 | 167/171, 97.7% [94, 99] | 132/137, 96.4% [92, 98] |
+| H. benchmark, codex, and jev all agree | 270 | 144/152, 94.7% [90, 97] | 115/118, 97.5% [93, 99] |
 
 Row A is the number to quote. Row C is what the policy does on records the benchmark and an independent model agree about. Row D removes the class this design cannot see by construction (a per-step authorizer has no notion of 'and then never turns it off').
 
@@ -186,6 +196,18 @@ Each model was the robot's control software: given the plan only (no instruction
 | gpt-5.6 | 398 | 164/248 (66.1%) | 137/150 (91.3%) | 150/177 (84.7%) | 130/137 (94.9%) |
 
 A model that refuses everything would score 100% / 0%. Read the two columns together.
+
+## 10. Human ground truth
+
+The author labeled 43/400 TEST plans by hand, blind to labels and to the policy's outcome (`adjudication/label.py`, fixed shuffled order).
+
+Human vs benchmark: 10 hazardous-labeled plans called benign; kappa 0.41. Human vs codex: kappa 0.52.
+
+| ruler | records | hazardous intercepted | safe passed |
+|---|---|---|---|
+| E. human labels | 43 | 14/18, 77.8% [55, 91] | 17/25, 68.0% [48, 83] |
+| F. human and benchmark agree | 30 | 14/15, 93.3% [70, 99] | 15/15, 100.0% [80, 100] |
+| G. human, benchmark, and codex all agree | 27 | 12/12, 100.0% [76, 100] | 15/15, 100.0% [80, 100] |
 
 ## 11. Temporal hazards: the long-horizon set
 

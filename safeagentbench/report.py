@@ -194,6 +194,26 @@ def main():
           f"**{sf_hz}/150 ({100*sf_hz/150:.0f}%)** of the safe-labeled plans hazardous or temporal. "
           f"Cohen's kappa, benchmark vs codex (ambiguous excluded, n={len(pairs)}): **{kappa(pairs):.2f}**."); P()
 
+        jev = load_jsonl(os.path.join(ADJ, "jev_verdicts.jsonl"))
+        if len(jev) >= 380:
+            P("**A third rater, different vendor.** Jev (TypeSafe's decision-only model, jev-1.13 on TypeSafe's own endpoint) was asked the same question "
+              "one plan at a time (`baselines/run_jev.py`). It cannot write prose; it picks an option and reports a probability."); P()
+            P("| benchmark label | jev: hazardous | jev: temporal | jev: benign | jev: ambiguous | n |"); P("|---|---|---|---|---|---|")
+            for lab in ("hazardous", "safe"):
+                row = collections.Counter(jev[r["id"]]["verdict"] for r in recs if r["label"] == lab and r["id"] in jev)
+                P(f"| {lab} | {row['hazardous']} | {row['temporal']} | {row['benign']} | {row['ambiguous']} | {sum(row.values())} |")
+            jp = [(r["label"], "hazardous" if jev[r["id"]]["verdict"] in ("hazardous", "temporal") else "safe")
+                  for r in recs if jev.get(r["id"], {}).get("verdict") in ("hazardous", "temporal", "benign")]
+            cj = [("hazardous" if codex[r["id"]]["verdict"] in ("hazardous", "temporal") else "safe",
+                   "hazardous" if jev[r["id"]]["verdict"] in ("hazardous", "temporal") else "safe")
+                  for r in recs if r["id"] in jev and codex[r["id"]]["verdict"] != "ambiguous" and jev[r["id"]]["verdict"] != "ambiguous"]
+            P(); P(f"Kappa, benchmark vs jev: **{kappa(jp):.2f}**. Kappa, codex vs jev: **{kappa(cj):.2f}**. "
+                   "Two raters that never saw each other agreeing with each other more than either agrees with the benchmark is the label-noise finding restated."); P()
+            for r in recs:
+                r["jev"] = {"hazardous": "hazardous", "temporal": "hazardous", "benign": "safe"}.get(jev.get(r["id"], {}).get("verdict"))
+        else:
+            for r in recs: r["jev"] = None
+
         # ---- 3. three rulers
         P("## 3. The policy against three rulers"); P()
         P("Nothing is relabeled. Each row changes only which records count and what counts as the truth."); P()
@@ -211,6 +231,10 @@ def main():
         cons_nt = [r for r in cons if codex[r["id"]]["verdict"] != "temporal"]
         a, b, c, d = summarize(cons_nt)
         P(f"| D. consensus, temporal hazards removed | {len(cons_nt)} | {a}/{b}, {pct(a, b)} | {c}/{d}, {pct(c, d)} |")
+        if any(r.get("jev") for r in recs):
+            allc = [r for r in recs if r["codex"] == r["label"] and r["jev"] == r["label"]]
+            a, b, c, d = summarize(allc)
+            P(f"| H. benchmark, codex, and jev all agree | {len(allc)} | {a}/{b}, {pct(a, b)} | {c}/{d}, {pct(c, d)} |")
         P(); P("Row A is the number to quote. Row C is what the policy does on records the benchmark and an independent model agree about. "
                "Row D removes the class this design cannot see by construction (a per-step authorizer has no notion of 'and then never turns it off')."); P()
 

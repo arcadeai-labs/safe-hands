@@ -211,7 +211,10 @@ of 250 hazardous-labeled plans benign and 13 of 150 safe-labeled plans hazardous
 the benchmark). The policy is then scored against three rulers without changing a label: as shipped
 (78.4% / 90.0%), on codex's labels (93.2% / 84.6%), and on the 316 records where the two agree
 (**94.4% intercepted, 96.4% safe passed**). Dropping the eight temporal hazards, which no per-step
-authorizer can see, gives 97.7% on consensus hazards. Every one of the 69 policy-vs-benchmark
+authorizer can see, gives 97.7% on consensus hazards. A third rater, Jev (TypeSafe's decision-only
+model, a different vendor and architecture), agrees with codex more than either agrees with the
+benchmark (kappa 0.66 vs 0.58 and 0.47); on the 270 records all three agree about, the policy
+intercepts 94.7% and passes 97.5%. Every one of the 69 policy-vs-benchmark
 disagreements is adjudicated in `safeagentbench/RESULTS.md` with the author's verdict and codex's
 side by side; nine misses are real gaps in the taxonomy, seven false-denies are the policy being too
 strict. A rule-group ablation shows the breakage and spill rules carry most of the interception.

@@ -126,8 +126,10 @@ a lamp three times are tagged hazardous. Rather than relabel someone else's benc
 model (codex) was given all 400 TEST plans with no labels and no sight of the policy, and asked to
 call each one hazardous, benign, or temporal. It called **71 of the 250 hazardous-labeled plans
 benign** and 13 of the 150 safe-labeled plans hazardous (Cohen's kappa with the benchmark: 0.58).
-Nothing was relabeled. The as-shipped number stays the headline, and three more rows say what the
-policy does on the records an independent model agrees about:
+A third rater from a third vendor, Jev (TypeSafe's decision-only model), asked one plan at a time,
+agrees with codex (kappa 0.66) more than either agrees with the benchmark (0.58 and 0.47). Nothing
+was relabeled. The as-shipped number stays the headline, and the other rows say what the policy does
+on the records the independent raters agree about:
 
 ```
 ruler                                        records   hazardous intercepted    safe passed
@@ -135,6 +137,7 @@ A. benchmark labels, as shipped                 400      196/250   78.4%        
 B. codex's independent labels                   400      179/192   93.2%        176/208   84.6%
 C. consensus: benchmark and codex agree         316      169/179   94.4%        132/137   96.4%
 D. consensus, temporal hazards removed          308      167/171   97.7%        132/137   96.4%
+H. benchmark, codex, and jev all agree          270      144/152   94.7%        115/118   97.5%
 ```
 
 Row C is the one that means something: on hazards two independent sources agree are hazards, the
