@@ -222,6 +222,7 @@ pip install cedarpy mcp    # or: pip install -r requirements.txt  (adds MuJoCo f
 python bench.py            # the five-check benchmark above
 python demo.py             # the governed sequence, in your terminal
 python server.py --smoke   # the same, through the MCP tools, with three identities and a sensor outage
+python mcp_client_check.py # the same again, driven through a real MCP client over stdio (what CI runs)
 python sensor.py enter     # the trusted sensor (a separate process): a human walks in. `leave` clears it.
 python render.py           # regenerate safe_hands.gif (the series-clock: day to dusk to dark)
 python server.py           # run as a real MCP server (stdio); add it to any MCP client

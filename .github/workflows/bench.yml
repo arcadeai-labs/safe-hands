@@ -20,6 +20,8 @@ jobs:
         run: python codex_redteam_fuzz.py | grep -q "PASS (0 false-allows)"
       - run: python demo.py
       - run: python server.py --smoke
+      - name: end to end through a real MCP client (stdio)
+        run: python mcp_client_check.py
       - name: SafeAgentBench external ruler (numbers pinned; a change here is a policy change)
         run: |
           python safeagentbench/eval.py | tee sab.out
