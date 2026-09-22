@@ -4,3 +4,11 @@ __pycache__/
 # scratch / internal (not part of the public artifact)
 _*
 LAUNCH.md
+
+# runtime state of the sensor stand-in (sensor.py)
+.sensor_state.json
+
+# a local clone of IliaLarchenko/robot_MCP for integrations/robot_mcp
+# (macOS git is case-insensitive, so this must be anchored or it hides integrations/robot_mcp)
+/robot_MCP/
+integrations/robot_mcp/robot_MCP/

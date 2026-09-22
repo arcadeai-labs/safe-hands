@@ -4,6 +4,14 @@ import os, json, time, cedarpy
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 LAWS = open(os.path.join(_HERE, "laws.cedar")).read()
+SCHEMA = json.load(open(os.path.join(_HERE, "laws.cedarschema.json")))
+
+# The Laws are type-checked against the schema before anything is governed by them. A typo in an
+# attribute name would otherwise evaluate to an error, which Cedar treats as "condition not met",
+# which for a forbid means the Law silently stops firing. Validation turns that into a hard failure.
+_v = cedarpy.validate_policies(LAWS, SCHEMA)
+if not _v.validation_passed:
+    raise RuntimeError(f"laws.cedar does not validate against laws.cedarschema.json: {_v.errors}")
 
 # Contextual authorization: different principals carry different grants (their allowed_actions).
 # This is the Second-Law surface. The ONLY source of permission is an in-scope order from an
@@ -45,6 +53,20 @@ def authorize(operator: str, action: str, world: dict):
     return allow, law
 
 
+def denied_for_every_principal(action: str, world: dict) -> bool:
+    """Partial evaluation with the principal UNKNOWN. If Cedar still returns a concrete Deny, no
+    principal, no grant, no permit anyone could write for this schema lets the request through:
+    a forbid fired on the context alone. This is the law-priority property checked by the engine
+    itself, not inferred from a grid of examples."""
+    ctx = {"action_name": action,
+           "human_in_workspace": bool(world.get("human_in_workspace", False)),
+           "speed": int(world.get("speed", 0)),
+           "joint_target": int(world.get("joint_target", 0)),
+           "required_to_prevent_human_harm": bool(world.get("required_to_prevent_human_harm", False))}
+    req = {"action": f'Action::"{action}"', "resource": 'Arm::"arm-1"', "context": ctx}   # no principal
+    return str(cedarpy.is_authorized_partial(req, LAWS, ENTS).decision).endswith("Deny")
+
+
 def _which_law(c, allow, scoped, operator):
     if allow: return "Second Law (obey the operator)"
     # denied: distinguish "this identity was never granted it" from "a safety Law overrode the grant"
@@ -52,6 +74,6 @@ def _which_law(c, allow, scoped, operator):
         return f"Second Law (no grant for '{operator}' on '{c['action_name']}')"
     if c["action_name"] == "disable_safety": return "First Law (protect humans)"
     if c["human_in_workspace"] and c["speed"] > 20: return "First Law (protect humans)"
-    if c["joint_target"] > 150 and not c["required_to_prevent_human_harm"]:
+    if abs(c["joint_target"]) > 150 and not c["required_to_prevent_human_harm"]:
         return "Third Law (self-preservation)"
     return "denied"

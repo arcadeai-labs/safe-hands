@@ -27,7 +27,8 @@ when { context.action_name == "disable_safety" };
 // ---- THIRD LAW -----------------------------------------------------------
 // "A robot must protect its own existence, as long as such protection does not
 //  conflict with the First or Second Law." Forbid self-destruction (a joint past
-//  its mechanical limit) UNLESS a higher law requires it.
+//  its mechanical limit, in either direction) UNLESS a higher law requires it.
 forbid ( principal, action, resource )
-when { context.joint_target > resource.hard_joint_limit }
+when { context.joint_target > resource.hard_joint_limit
+    || context.joint_target < -(resource.hard_joint_limit) }
 unless { context.required_to_prevent_human_harm };
