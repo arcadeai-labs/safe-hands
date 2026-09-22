@@ -15,7 +15,7 @@ Two things the agent CANNOT do:
     Run as an MCP server:   python server.py           (stdio; add to any MCP client)
     Or see it governed:     python server.py --smoke
 """
-import math
+import math, time
 try:                                     # mcp >= 2.0 renamed FastMCP to MCPServer
     from mcp.server.mcpserver import MCPServer as FastMCP
 except ImportError:                      # mcp 1.x
@@ -39,11 +39,16 @@ def agent_tool(fn):
     return mcp.tool()(fn)
 
 
+def _refuse(principal, action: str, law: str, message: str) -> dict:
+    """A refusal that never reached the Laws is still an event the audit must hold."""
+    AUDIT.append({"t": round(time.time(), 3), "operator": principal, "action": action, "decision": "Deny", "law": law})
+    return {"status": "DENIED", "principal": principal, "law": law, "action": action, "message": message}
+
+
 def _governed(action: str, joint_target: int = 0, speed: int = 0, **actuator_kw) -> dict:
     principal = SESSION["principal"]
     if principal is None:
-        return {"status": "DENIED", "law": "authentication required",
-                "action": action, "message": "No authenticated principal. Call authenticate(token) first."}
+        return _refuse(None, action, "authentication required", "No authenticated principal. Call authenticate(token) first.")
     sensed = sensor.read()                        # the runtime asks the sensor, never the agent
     world = {"human_in_workspace": sensed["human_in_workspace"], "speed": speed, "joint_target": joint_target}
     allow, law = authorize(principal, action, world)
@@ -77,8 +82,7 @@ def move_joint(joint: str, target_degrees: int, speed_cm_s: int = 10) -> dict:
     Governed by contextual auth + the Three Laws: the speed is the agent's request, whether a human
     is present is the sensor's report, and the First Law is decided on both."""
     if joint not in JOINTS:   # only real joints are actuator targets; never an arbitrary attribute
-        return {"status": "DENIED", "law": "invalid joint", "action": "set_joint",
-                "message": f"Unknown joint '{joint}'. Valid joints: {sorted(JOINTS)}."}
+        return _refuse(SESSION["principal"], "set_joint", "invalid joint", f"Unknown joint '{joint}'. Valid joints: {sorted(JOINTS)}.")
     return _governed("set_joint", joint_target=target_degrees, speed=speed_cm_s,
                      joint=joint, value=math.radians(target_degrees))
 

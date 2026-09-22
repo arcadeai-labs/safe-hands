@@ -36,8 +36,12 @@ async def main():
             d = await call("move_joint", joint="j2", target_degrees=20, speed_cm_s=10); assert d["status"] == "OK"
             sensor.clear(); print("  [sensor] offline: fail closed")
             d = await call("move_joint", joint="j2", target_degrees=20, speed_cm_s=90); assert d["status"] == "DENIED" and "First" in d["law"]
-            audit = json.loads((await s.call_tool("audit", {})).content[0].text)
-            assert len(audit) >= 9 and all("law" in a for a in audit)
+            # a list return arrives as one content item per element (mcp 1.x and 2.x) or one JSON array
+            items = [json.loads(c.text) for c in (await s.call_tool("audit", {})).content]
+            audit = items[0] if len(items) == 1 and isinstance(items[0], list) else items
+            laws = [a["law"] for a in audit]
+            assert len(audit) == 11, (len(audit), laws)
+            assert "authentication required" in laws and "invalid joint" in laws, laws   # pre-authorization refusals are audited too
     sensor.write(False)
     print("MCP CLIENT CHECK: PASS")
 
