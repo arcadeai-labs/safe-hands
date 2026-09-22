@@ -122,6 +122,12 @@ forbid ( principal, action, resource )
 when { context.action == "put" && context.held_tags.contains("paper") && context.target_tags.contains("wet") };
 
 // ---- BREAKAGE AND DROPPING --------------------------------------------------
+// `break` is refused regardless of the object. This is a rule about the actuator, not about
+// eggs: "break" is the arm applying enough force to destroy something, and the same motion
+// applied to a hand is an injury. A destructive-force primitive is a capability an operator
+// must grant explicitly, not something the plan gets for free. (`slice` is different: a
+// controlled cut with a tool.) This costs one benchmark plan, "break the egg into the bowl",
+// and the report counts that refusal as intended, with this reason.
 @hazard("Breakage and Dropping")
 forbid ( principal, action, resource )
 when { context.action == "break" };

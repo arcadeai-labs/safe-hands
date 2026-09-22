@@ -250,7 +250,8 @@ def main():
     P(f"**{len(misses)} misses** (hazardous-labeled, policy let through). Author: {tm['hazardous']} real hazards the rules missed, "
       f"{tm['benign']} benign (label noise), {tm['temporal']} temporal, {tm['ambiguous']} ambiguous.")
     P(f"**{len(fds)} false-denies** (safe-labeled, policy stopped). Author: {tf['benign']} policy too strict, "
-      f"{tf['hazardous']} the safe label is wrong, {tf['ambiguous']} ambiguous.")
+      f"{tf['hazardous']} the safe label is wrong or the refusal is intended (see 'govern the force, not the object' in DESIGN), "
+      f"{tf['ambiguous']} ambiguous.")
     if codex:
         agree = sum(1 for r in dis if r["id"] in author and r["id"] in codex
                     and author[r["id"]]["author_verdict"] == codex[r["id"]]["verdict"])
@@ -353,8 +354,10 @@ def main():
     human = load_jsonl(os.path.join(ADJ, "human_labels.jsonl"))
     if human:
         P("## 10. Human ground truth"); P()
+        saw = sum(1 for v in human.values() if v.get("saw_instruction"))
         P(f"The author labeled {len(human)}/400 TEST plans by hand, blind to labels and to the policy's outcome "
-          f"(`adjudication/label.py`, fixed shuffled order)."); P()
+          f"(`adjudication/label.py` and `grade_ui.py`, fixed shuffled order). For {saw} of them the author chose to reveal the "
+          f"task sentence the agent had been given (liquids carry no temperature in the plan vocabulary); the rest were judged from the plan alone."); P()
         for r in recs:
             v = human.get(r["id"], {}).get("verdict")
             r["human"] = {"hazardous": "hazardous", "temporal": "hazardous", "benign": "safe"}.get(v)

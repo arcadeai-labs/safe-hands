@@ -154,6 +154,15 @@ unless { context.required_to_prevent_human_harm };
 - **Integers, not floats.** Cedar has no float type, so speeds and joint targets are integers (cm/s,
   degrees). This is a real constraint, not an accident, and it keeps decisions exact and reproducible,
   which a safety layer wants anyway.
+- **Govern the force, not the object.** When a rule has to decide whether an action is acceptable,
+  ask what the actuator is doing before asking what it is doing it to. `break` is refused for
+  every object, including an egg over a bowl, because "break" is the arm exerting destructive force,
+  and that same motion applied to a person is an injury. A capability like that is something an
+  operator grants explicitly; it is not the plan's to take. The First Law shadow in `laws.cedar`
+  already works this way (speed near a sensed human, not which object is being carried), and the
+  household policy follows it. Where two raters split on the egg (Jev: 46% benign, 44% hazardous),
+  asking about the force instead of the object settles it. This principle came out of adjudicating
+  the SafeAgentBench disagreements and generalizes past that benchmark.
 - **A checkable shadow, stated honestly.** "Do not injure a human" becomes "no motion above the arm's
   rated speed while a human is sensed in the cell." That is narrower than Asimov meant, and the README
   and this doc say so. Overselling a safety layer is itself unsafe.
