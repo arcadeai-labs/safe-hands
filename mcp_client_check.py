@@ -40,7 +40,7 @@ async def main():
             items = [json.loads(c.text) for c in (await s.call_tool("audit", {})).content]
             audit = items[0] if len(items) == 1 and isinstance(items[0], list) else items
             laws = [a["law"] for a in audit]
-            assert len(audit) == 11, (len(audit), laws)
+            assert len(audit) == 10, (len(audit), laws)   # ten governed calls in this script, every one audited
             assert "authentication required" in laws and "invalid joint" in laws, laws   # pre-authorization refusals are audited too
     sensor.write(False)
     print("MCP CLIENT CHECK: PASS")
